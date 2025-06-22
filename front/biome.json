@@ -30,5 +30,6 @@
 				"organizeImports": "on"
 			}
 		}
-	}
+	},
+	"root": false
 }

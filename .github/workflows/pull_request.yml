@@ -15,4 +15,4 @@ jobs:
         with:
           version: latest
       - name: Run Biome
-        run: cd front&biome ci .
+        run: biome ci .
