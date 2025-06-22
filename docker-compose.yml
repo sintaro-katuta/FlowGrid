@@ -1,0 +1,9 @@
+services:
+  front:
+   build: front
+   working_dir: /usr/src/app
+   volumes:
+     - ./front:/usr/src/app
+   ports:
+      - "3000:3000"
+   tty: true
