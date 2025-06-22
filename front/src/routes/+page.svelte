@@ -3,5 +3,5 @@
 <button class="btn">button</button>
 
 <script>
-  import "../app.css"
+import "../app.css";
 </script>
