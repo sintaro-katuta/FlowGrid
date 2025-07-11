@@ -1,0 +1,21 @@
+FROM node:20-slim
+
+ENV PNPM_HOME=/root/.pnpm
+ENV PATH=$PNPM_HOME:$PATH
+
+RUN apt-get update && apt-get install -y git curl && \
+    corepack enable && \
+    corepack prepare pnpm@latest --activate && \
+    pnpm config set store-dir /root/.pnpm-store && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["pnpm", "dev"]
