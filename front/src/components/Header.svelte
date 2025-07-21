@@ -5,11 +5,6 @@
       <p class="text-black text-xl">FlowGrid</p>
     </a>
   </div>
-  {#if user}
-  <div class="navbar-center hidden lg:flex">
-    <a href="/dashboard" class="link link-hover">ダッシュボード</a>
-  </div>
-  {/if}
   <div class="navbar-end">
     {#if user}
       <div class="avatar avatar-placeholder">
