@@ -33,9 +33,9 @@
 			}
 		}
 	},
-	  "overrides": [
+	"overrides": [
     {
-      "include": ["*.svelte"],
+      "includes": ["*.svelte"],
       "linter": {
         "rules": {
           "style": {
