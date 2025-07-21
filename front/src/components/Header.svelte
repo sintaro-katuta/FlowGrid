@@ -19,7 +19,7 @@
 </div>
 
 <script>
-  const user = {
-    name: "shintaro.katsuta"
-  }
+const user = {
+	name: "shintaro.katsuta",
+};
 </script>

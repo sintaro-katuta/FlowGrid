@@ -11,7 +11,7 @@
 </div>
 
 <script>
-  export let title;
-  export let count;
-  export let diff;
+export let title;
+export let count;
+export let diff;
 </script>

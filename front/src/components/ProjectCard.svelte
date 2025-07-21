@@ -15,7 +15,7 @@
 </div>
 
 <script>
-  export let project;
-  export let progress
-  export let method;
+export let project;
+export let progress;
+export let method;
 </script>
