@@ -1,3 +1,9 @@
+<script>
+  export let project;
+  export let progress;
+  export let method;
+</script>
+
 <div class="card w-full border border-gray-300 shadow">
   <div class="card-body">
     <div class="badge badge-primary absolute top-5 right-5">{method}</div>
@@ -13,9 +19,3 @@
     </div>
   </div>
 </div>
-
-<script>
-export let project;
-export let progress;
-export let method;
-</script>

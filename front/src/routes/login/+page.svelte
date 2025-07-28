@@ -1,7 +1,11 @@
-<div class="container  py-12">
+<script>
+  import '@/app.css';
+</script>
+
+<div class="container py-12">
   <div class="navbar-start items-center gap-5">
     <a href="/" class="btn btn-ghost normal-case">
-      <img src="/FlowGrid.svg" alt="" width="32">
+      <img src="/FlowGrid.svg" alt="" width="32" />
       <p class="text-black text-xl">FlowGrid</p>
     </a>
   </div>
@@ -20,7 +24,3 @@
     </span>
   </div>
 </div>
-
-<script>
-import "@/app.css";
-</script>

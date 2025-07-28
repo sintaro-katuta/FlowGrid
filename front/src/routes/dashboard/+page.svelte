@@ -1,3 +1,15 @@
+<script>
+  import '@/app.css';
+  import Header from '@/components/Header.svelte';
+  import Sidebar from '@/components/Sidebar.svelte';
+  import DashboardCard from '@/components/DashboardCard.svelte';
+  import ProjectCard from '@/components/ProjectCard.svelte';
+
+  const team = {
+    name: 'チーム運営'
+  };
+</script>
+
 <Header />
 
 <div class="flex flex-row">
@@ -22,17 +34,3 @@
     </div>
   </div>
 </div>
-
-
-
-<script>
-import "@/app.css";
-import Header from "@/components/Header.svelte";
-import Sidebar from "@/components/Sidebar.svelte";
-import DashboardCard from "@/components/DashboardCard.svelte";
-import ProjectCard from "@/components/ProjectCard.svelte";
-
-const team = {
-	name: "チーム運営",
-};
-</script>

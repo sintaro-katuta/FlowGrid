@@ -1,8 +1,12 @@
+<script>
+  import '@/app.css';
+</script>
+
 <div class="flex justify-center py-12">
   <div class="w-full max-w-md">
     <div class="flex justify-center mb-8">
       <a href="/" class="btn btn-ghost normal-case">
-        <img src="/FlowGrid.svg" alt="" width="32">
+        <img src="/FlowGrid.svg" alt="" width="32" />
         <p class="text-black text-xl">FlowGrid</p>
       </a>
     </div>
@@ -22,7 +26,3 @@
     </div>
   </div>
 </div>
-
-<script>
-import "@/app.css";
-</script>
