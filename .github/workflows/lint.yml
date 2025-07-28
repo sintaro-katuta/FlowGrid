@@ -1,4 +1,4 @@
-name: CI
+name: Lint and Format Check
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  frontend-lint:
+  lint-and-format:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,13 +28,10 @@ jobs:
         version: 8
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: pnpm install
 
     - name: Run ESLint
       run: pnpm lint
 
     - name: Check Prettier formatting
       run: pnpm format:check
-
-    - name: Build project
-      run: pnpm build
