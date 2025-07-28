@@ -1,4 +1,4 @@
-name: Lint and Format Check
+name: CI
 
 on:
   push:
@@ -7,8 +7,11 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  lint-and-format:
+  frontend-lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./front
 
     steps:
     - name: Checkout code
@@ -32,3 +35,6 @@ jobs:
 
     - name: Check Prettier formatting
       run: pnpm format:check
+
+    - name: Build project
+      run: pnpm build
