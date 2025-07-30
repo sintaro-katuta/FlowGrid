@@ -1,0 +1,18 @@
+# SvelteKitのビルドファイル
+.svelte-kit/
+
+# 出力ディレクトリ（デプロイや本番ビルドに使う場合）
+build/
+dist/
+
+# パッケージマネージャーのロックファイル
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# node_modules（念のため）
+node_modules/
+
+# 環境設定系（任意）
+*.log
+.DS_Store
