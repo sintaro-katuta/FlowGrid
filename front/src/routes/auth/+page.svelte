@@ -10,7 +10,6 @@
   }
 </script>
 
-<!-- @ts-nocheck -->
 <div class="flex justify-center py-12">
   <div class="w-full max-w-md">
     <div class="flex justify-center mb-8">
