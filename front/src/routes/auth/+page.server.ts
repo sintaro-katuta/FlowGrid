@@ -1,3 +1,4 @@
+import { ZodError } from 'zod';
 import { authSchema } from '$lib/schemas/authSchema.js';
 import { fail } from '@sveltejs/kit';
 
@@ -9,12 +10,14 @@ export const actions = {
         try {
             authSchema.pick({ email: true, password: true }).parse(data);
         } catch (err: any) {
-            const { fieldErrors: errors } = err.flatten();
-            return fail(400, { errors });
+            if (err instanceof ZodError) {
+                const { fieldErrors: errors } = err.flatten();
+                return fail(400, { errors });
+            }
         }
 
-        const email = formData.get('email') as string;
-        const password = formData.get('password') as string;
+        const email: string = formData.get('email') as string;
+        const password: string = formData.get('password') as string;
 
         return { success: true, message: 'ログイン成功' };
     },
@@ -25,13 +28,15 @@ export const actions = {
 
         try {
             authSchema.parse(data);
-        } catch (err: any) {
-            const { fieldErrors: errors } = err.flatten();
-            return fail(400, { errors });
+        } catch (err) {
+            if(err instanceof ZodError) {
+                const { fieldErrors: errors } = err.flatten();
+                return fail(400, { errors });
+            }
         }
 
-        const email = formData.get('email') as string;
-        const password = formData.get('password') as string;
+        const email: string = formData.get('email') as string;
+        const password: string = formData.get('password') as string;
 
         return { success: true, message: 'サインアップ成功' };
     }
