@@ -9,7 +9,7 @@ export const actions = {
 
         try {
             authSchema.pick({ email: true, password: true }).parse(data);
-        } catch (err: any) {
+        } catch (err) {
             if (err instanceof ZodError) {
                 const { fieldErrors: errors } = err.flatten();
                 return fail(400, { errors });
