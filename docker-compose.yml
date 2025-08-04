@@ -7,3 +7,77 @@ services:
    ports:
       - "3000:3000"
    tty: true
+  api:
+    build:
+      context: ./backend
+      dockerfile: dockerfile.dev  # 開発用Dockerfile
+    container_name: backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - go_cache:/go/pkg/mod  # Goモジュールキャッシュ
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://user:password@postgres:5432/myapp?sslmode=disable
+      PORT: 8080
+      JWT_SECRET: your-jwt-secret-key
+      GO_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # command: go run main.go
+    tty: true
+
+  # PostgreSQLデータベース
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_DB: flowgrid
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d flowgrid"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis（キャッシュ・セッション管理）
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  # pgAdmin（データベース管理画面）
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+volumes:
+  postgres_data:
+  redis_data:
+  pgadmin_data:
+  go_cache:
+
+networks:
+  default:
+    name: flowgrid_network
