@@ -1,0 +1,56 @@
+# ワークフローの名前
+name: Go Linter
+
+# ワークフローが実行されるトリガー
+on:
+  # mainブランチへのpush時
+  push:
+    branches:
+      - main
+  # mainブランチに対するpull request作成・更新時
+  pull_request:
+    branches:
+      - main
+
+# 実行するジョブの定義
+jobs:
+  golangci-lint:
+    # ジョブの名前
+    name: lint
+    # 実行環境を指定
+    runs-on: ubuntu-latest
+
+    # ジョブのステップ
+    steps:
+      # 1. リポジトリのコードをチェックアウトする
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Goの環境をセットアップする
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          # 使用するGoのバージョン。Dockerfileと合わせるのが望ましい。
+          go-version: '1.24'
+          # Goのビルドキャッシュを有効にして高速化
+          cache: true
+
+      # 3. golangci-lintを実行する
+      # これがこのワークフローの核心部分
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          # 使用するgolangci-lintのバージョン。
+          # 最新版を使うか、特定のバージョンに固定する。
+          version: v1.59
+
+          # 実行するディレクトリを指定する。
+          # Goのコードが`backend`ディレクトリにあるため、ワーキングディレクトリを変更する。
+          working-directory: backend
+
+          # オプション: より詳細なログを出力したい場合
+          # args: --verbose
+
+          # キャッシュを有効にすることで、2回目以降の実行が高速になる。
+          # このActionは賢く、Goのバージョンやgo.modの変更を検知してキャッシュを更新してくれる。
+          cache-key: golangci-lint

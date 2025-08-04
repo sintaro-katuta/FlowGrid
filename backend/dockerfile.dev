@@ -1,0 +1,55 @@
+# ===========================================
+# バックエンド開発用 Dockerfile
+# ファイル名: backend/Dockerfile.dev
+# ===========================================
+
+FROM golang:1.24-alpine
+
+# 開発に必要なツールをインストール
+RUN apk add --no-cache git ca-certificates tzdata curl
+
+# Air（ホットリロードツール）をインストール
+RUN go install github.com/air-verse/air@latest
+
+# 作業ディレクトリを設定
+WORKDIR /app
+
+# go.modとgo.sumをコピー
+# COPY go.mod go.sum ./
+
+# 依存関係をダウンロード
+# RUN go mod download
+
+# ソースコードをコピー
+COPY . .
+
+# ポートを公開
+EXPOSE 8080
+
+# Airでホットリロード起動
+CMD ["air"]
+
+# ===========================================
+# 本番用 Dockerfile
+# ファイル名: backend/Dockerfile
+# ===========================================
+
+# # マルチステージビルド
+# FROM golang:1.21-alpine AS builder
+# 
+# RUN apk add --no-cache git ca-certificates tzdata
+# WORKDIR /app
+# COPY go.mod go.sum ./
+# RUN go mod download
+# COPY . .
+# RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+# 
+# FROM alpine:latest
+# RUN apk --no-cache add ca-certificates tzdata
+# RUN adduser -D -s /bin/sh appuser
+# WORKDIR /root/
+# COPY --from=builder /app/main .
+# RUN chown appuser:appuser main
+# USER appuser
+# EXPOSE 8080
+# CMD ["./main"]
