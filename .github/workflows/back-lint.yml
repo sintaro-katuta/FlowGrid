@@ -42,15 +42,9 @@ jobs:
         with:
           # 使用するgolangci-lintのバージョン。
           # 最新版を使うか、特定のバージョンに固定する。
-          version: v1.59
+          version: v1.60.1
 
           # 実行するディレクトリを指定する。
           # Goのコードが`backend`ディレクトリにあるため、ワーキングディレクトリを変更する。
           working-directory: backend
 
-          # オプション: より詳細なログを出力したい場合
-          # args: --verbose
-
-          # キャッシュを有効にすることで、2回目以降の実行が高速になる。
-          # このActionは賢く、Goのバージョンやgo.modの変更を検知してキャッシュを更新してくれる。
-          cache-key: golangci-lint
