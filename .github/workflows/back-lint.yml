@@ -1,50 +1,31 @@
-# ワークフローの名前
-name: Go Linter
+name: Lint
 
-# ワークフローが実行されるトリガー
-on:
-  # mainブランチへのpush時
-  push:
-    branches:
-      - main
-  # mainブランチに対するpull request作成・更新時
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
-# 実行するジョブの定義
 jobs:
-  golangci-lint:
-    # ジョブの名前
-    name: lint
-    # 実行環境を指定
+  lint:
     runs-on: ubuntu-latest
-
-    # ジョブのステップ
     steps:
-      # 1. リポジトリのコードをチェックアウトする
+      # ソースコードをチェックアウト
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
-      # 2. Goの環境をセットアップする
+      # Goのセットアップ
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v2
         with:
-          # 使用するGoのバージョン。Dockerfileと合わせるのが望ましい。
-          go-version: '1.24'
-          # Goのビルドキャッシュを有効にして高速化
-          cache: true
+          go-version: 1.24  # 使用しているGoのバージョンを指定
 
-      # 3. golangci-lintを実行する
-      # これがこのワークフローの核心部分
+      # golangci-lintのインストール
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh
+          sudo mv ./bin/golangci-lint /usr/local/bin
+
+      # インストールが成功したことを確認（バージョン確認）
+      - name: Verify golangci-lint installation
+        run: golangci-lint --version
+
+      # golangci-lintの実行
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          # 使用するgolangci-lintのバージョン。
-          # 最新版を使うか、特定のバージョンに固定する。
-          version: v1.60.1
-
-          # 実行するディレクトリを指定する。
-          # Goのコードが`backend`ディレクトリにあるため、ワーキングディレクトリを変更する。
-          working-directory: backend
-
+        run: golangci-lint
