@@ -7,3 +7,58 @@ services:
    ports:
       - "3000:3000"
    tty: true
+  api:
+    build:
+      context: ./backend
+      dockerfile: dockerfile.dev  # 開発用Dockerfile
+    container_name: backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - go_cache:/go/pkg/mod  # Goモジュールキャッシュ
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: go run main.go
+    tty: true
+
+  # MySQLデータベース
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: flowgrid
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uuser", "-ppassword"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis（キャッシュ・セッション管理）
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  mysql_data:
+  redis_data:
+  go_cache:
+
+networks:
+  default:
+    name: flowgrid_network
