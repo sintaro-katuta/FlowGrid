@@ -15,10 +15,10 @@ RUN go install github.com/air-verse/air@latest
 WORKDIR /app
 
 # go.modとgo.sumをコピー
-# COPY go.mod go.sum ./
+COPY go.mod go.sum ./
 
 # 依存関係をダウンロード
-# RUN go mod download
+RUN go mod download
 
 # ソースコードをコピー
 COPY . .
