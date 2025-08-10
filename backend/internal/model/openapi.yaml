@@ -1,0 +1,1375 @@
+openapi: 3.0.0
+info:
+  title: Database API
+  version: 1.0.0
+  description: SQLスキーマから生成されたAPIドキュメント
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local server
+components:
+  schemas:
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ロールID
+        name:
+          type: string
+          description: ロール名
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+      required:
+        - name
+
+
+
+
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 会社ID
+        name:
+          type: string
+          description: 会社名
+        domain:
+          type: string
+          description: ドメイン
+        address:
+          type: string
+          description: 住所
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+      required:
+        - name
+        - domain
+        - address
+
+
+
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ユーザーID
+        name:
+          type: string
+          description: ユーザー名
+        email:
+          type: string
+          format: email
+          description: メールアドレス
+        role_id:
+          type: integer
+          format: int64
+          description: ロールID
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+      required:
+        - name
+        - email
+        - role_id
+
+
+
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: プロジェクトID
+        name:
+          type: string
+          description: プロジェクト名
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+      required:
+        - name
+
+
+
+
+    Sprint:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: スプリントID
+        name:
+          type: string
+          description: スプリント名
+        project_id:
+          type: integer
+          format: int64
+          description: プロジェクトID
+        start_date:
+          type: string
+          format: date-time
+          description: 開始日
+        end_date:
+          type: string
+          format: date-time
+          description: 終了日
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+      required:
+        - name
+        - project_id
+        - start_date
+        - end_date
+
+
+
+
+    Status:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ステータスID
+        name:
+          type: string
+          description: ステータス名
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+      required:
+        - name
+
+
+
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: タスクID
+        title:
+          type: string
+          description: タスクのタイトル
+        description:
+          type: string
+          description: タスクの説明
+        user_id:
+          type: integer
+          format: int64
+          description: 担当ユーザーID
+        project_id:
+          type: integer
+          format: int64
+          description: プロジェクトID
+        sprint_id:
+          type: integer
+          format: int64
+          description: スプリントID
+        status_id:
+          type: integer
+          format: int64
+          description: ステータスID
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+      required:
+        - title
+        - description
+        - user_id
+        - project_id
+        - sprint_id
+        - status_id
+
+
+
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: コメントID
+        content:
+          type: string
+          description: コメント内容
+        user_id:
+          type: integer
+          format: int64
+          description: ユーザーID
+        task_id:
+          type: integer
+          format: int64
+          description: タスクID
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+      required:
+        - content
+        - user_id
+        - task_id
+
+
+
+
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: チームID
+        name:
+          type: string
+          description: チーム名
+        project_id:
+          type: integer
+          format: int64
+          description: プロジェクトID
+        user_id:
+          type: integer
+          format: int64
+          description: ユーザーID
+        role_id:
+          type: integer
+          format: int64
+          description: ロールID
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+      required:
+        - name
+        - project_id
+        - user_id
+        - role_id
+
+
+
+
+    Service:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: サービスID
+        name:
+          type: string
+          description: サービス名
+        company_id:
+          type: integer
+          format: int64
+          description: 会社ID
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+      required:
+        - name
+        - company_id
+
+
+
+
+    Document:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ドキュメントID
+        title:
+          type: string
+          description: ドキュメントのタイトル
+        content:
+          type: string
+          description: ドキュメントの内容
+        project_id:
+          type: integer
+          format: int64
+          description: プロジェクトID
+        task_id:
+          type: integer
+          format: int64
+          description: タスクID
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+      required:
+        - title
+        - content
+        - project_id
+        - task_id
+
+
+
+
+paths:
+  /roles:
+    get:
+      summary: 全てのロールを取得
+      responses:
+        '200':
+          description: ロールリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+    post:
+      summary: 新しいロールを作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        '201':
+          description: 作成されたロール
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+  /roles/{id}:
+    get:
+      summary: 特定のロールを取得
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ロールID
+      responses:
+        '200':
+          description: ロール情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '404':
+          description: ロールが見つかりません
+    put:
+      summary: 特定のロールを更新
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ロールID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        '200':
+          description: 更新されたロール
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '404':
+          description: ロールが見つかりません
+    delete:
+      summary: 特定のロールを削除
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ロールID
+      responses:
+        '204':
+          description: ロールが正常に削除されました
+        '404':
+          description: ロールが見つかりません
+
+
+
+
+  /companies:
+    get:
+      summary: 全ての会社を取得
+      responses:
+        '200':
+          description: 会社リスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Company'
+    post:
+      summary: 新しい会社を作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Company'
+      responses:
+        '201':
+          description: 作成された会社
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+  /companies/{id}:
+    get:
+      summary: 特定の会社を取得
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: 会社ID
+      responses:
+        '200':
+          description: 会社情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '404':
+          description: 会社が見つかりません
+    put:
+      summary: 特定の会社を更新
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: 会社ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Company'
+      responses:
+        '200':
+          description: 更新された会社
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '404':
+          description: 会社が見つかりません
+    delete:
+      summary: 特定の会社を削除
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: 会社ID
+      responses:
+        '204':
+          description: 会社が正常に削除されました
+        '404':
+          description: 会社が見つかりません
+
+
+
+
+  /users:
+    get:
+      summary: 全てのユーザーを取得
+      responses:
+        '200':
+          description: ユーザーリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      summary: 新しいユーザーを作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: 作成されたユーザー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/{id}:
+    get:
+      summary: 特定のユーザーを取得
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ユーザーID
+      responses:
+        '200':
+          description: ユーザー情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: ユーザーが見つかりません
+    put:
+      summary: 特定のユーザーを更新
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ユーザーID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: 更新されたユーザー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: ユーザーが見つかりません
+    delete:
+      summary: 特定のユーザーを削除
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ユーザーID
+      responses:
+        '204':
+          description: ユーザーが正常に削除されました
+        '404':
+          description: ユーザーが見つかりません
+
+
+
+
+  /projects:
+    get:
+      summary: 全てのプロジェクトを取得
+      responses:
+        '200':
+          description: プロジェクトリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+    post:
+      summary: 新しいプロジェクトを作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        '201':
+          description: 作成されたプロジェクト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+  /projects/{id}:
+    get:
+      summary: 特定のプロジェクトを取得
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: プロジェクトID
+      responses:
+        '200':
+          description: プロジェクト情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: プロジェクトが見つかりません
+    put:
+      summary: 特定のプロジェクトを更新
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: プロジェクトID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        '200':
+          description: 更新されたプロジェクト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: プロジェクトが見つかりません
+    delete:
+      summary: 特定のプロジェクトを削除
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: プロジェクトID
+      responses:
+        '204':
+          description: プロジェクトが正常に削除されました
+        '404':
+          description: プロジェクトが見つかりません
+
+
+
+
+  /sprints:
+    get:
+      summary: 全てのスプリントを取得
+      responses:
+        '200':
+          description: スプリントリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sprint'
+    post:
+      summary: 新しいスプリントを作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sprint'
+      responses:
+        '201':
+          description: 作成されたスプリント
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sprint'
+  /sprints/{id}:
+    get:
+      summary: 特定のスプリントを取得
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: スプリントID
+      responses:
+        '200':
+          description: スプリント情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sprint'
+        '404':
+          description: スプリントが見つかりません
+    put:
+      summary: 特定のスプリントを更新
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: スプリントID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sprint'
+      responses:
+        '200':
+          description: 更新されたスプリント
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sprint'
+        '404':
+          description: スプリントが見つかりません
+    delete:
+      summary: 特定のスプリントを削除
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: スプリントID
+      responses:
+        '204':
+          description: スプリントが正常に削除されました
+        '404':
+          description: スプリントが見つかりません
+
+
+
+
+  /statuses:
+    get:
+      summary: 全てのステータスを取得
+      responses:
+        '200':
+          description: ステータスリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Status'
+    post:
+      summary: 新しいステータスを作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Status'
+      responses:
+        '201':
+          description: 作成されたステータス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+  /statuses/{id}:
+    get:
+      summary: 特定のステータスを取得
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ステータスID
+      responses:
+        '200':
+          description: ステータス情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '404':
+          description: ステータスが見つかりません
+    put:
+      summary: 特定のステータスを更新
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ステータスID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Status'
+      responses:
+        '200':
+          description: 更新されたステータス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '404':
+          description: ステータスが見つかりません
+    delete:
+      summary: 特定のステータスを削除
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ステータスID
+      responses:
+        '204':
+          description: ステータスが正常に削除されました
+        '404':
+          description: ステータスが見つかりません
+
+
+
+
+  /tasks:
+    get:
+      summary: 全てのタスクを取得
+      responses:
+        '200':
+          description: タスクリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+    post:
+      summary: 新しいタスクを作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '201':
+          description: 作成されたタスク
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+  /tasks/{id}:
+    get:
+      summary: 特定のタスクを取得
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: タスクID
+      responses:
+        '200':
+          description: タスク情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: タスクが見つかりません
+    put:
+      summary: 特定のタスクを更新
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: タスクID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '200':
+          description: 更新されたタスク
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: タスクが見つかりません
+    delete:
+      summary: 特定のタスクを削除
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: タスクID
+      responses:
+        '204':
+          description: タスクが正常に削除されました
+        '404':
+          description: タスクが見つかりません
+
+
+
+
+  /comments:
+    get:
+      summary: 全てのコメントを取得
+      responses:
+        '200':
+          description: コメントリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+    post:
+      summary: 新しいコメントを作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '201':
+          description: 作成されたコメント
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+  /comments/{id}:
+    get:
+      summary: 特定のコメントを取得
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: コメントID
+      responses:
+        '200':
+          description: コメント情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '404':
+          description: コメントが見つかりません
+    put:
+      summary: 特定のコメントを更新
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: コメントID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '200':
+          description: 更新されたコメント
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '404':
+          description: コメントが見つかりません
+    delete:
+      summary: 特定のコメントを削除
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: コメントID
+      responses:
+        '204':
+          description: コメントが正常に削除されました
+        '404':
+          description: コメントが見つかりません
+
+
+
+
+  /teams:
+    get:
+      summary: 全てのチームを取得
+      responses:
+        '200':
+          description: チームリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team'
+    post:
+      summary: 新しいチームを作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+      responses:
+        '201':
+          description: 作成されたチーム
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+  /teams/{id}:
+    get:
+      summary: 特定のチームを取得
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: チームID
+      responses:
+        '200':
+          description: チーム情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '404':
+          description: チームが見つかりません
+    put:
+      summary: 特定のチームを更新
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: チームID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+      responses:
+        '200':
+          description: 更新されたチーム
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '404':
+          description: チームが見つかりません
+    delete:
+      summary: 特定のチームを削除
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: チームID
+      responses:
+        '204':
+          description: チームが正常に削除されました
+        '404':
+          description: チームが見つかりません
+
+
+
+
+  /services:
+    get:
+      summary: 全てのサービスを取得
+      responses:
+        '200':
+          description: サービスリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+    post:
+      summary: 新しいサービスを作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '201':
+          description: 作成されたサービス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+  /services/{id}:
+    get:
+      summary: 特定のサービスを取得
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: サービスID
+      responses:
+        '200':
+          description: サービス情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '404':
+          description: サービスが見つかりません
+    put:
+      summary: 特定のサービスを更新
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: サービスID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          description: 更新されたサービス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '404':
+          description: サービスが見つかりません
+    delete:
+      summary: 特定のサービスを削除
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: サービスID
+      responses:
+        '204':
+          description: サービスが正常に削除されました
+        '404':
+          description: サービスが見つかりません
+
+
+
+
+  /documents:
+    get:
+      summary: 全てのドキュメントを取得
+      responses:
+        '200':
+          description: ドキュメントリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Document'
+    post:
+      summary: 新しいドキュメントを作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Document'
+      responses:
+        '201':
+          description: 作成されたドキュメント
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+  /documents/{id}:
+    get:
+      summary: 特定のドキュメントを取得
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ドキュメントID
+      responses:
+        '200':
+          description: ドキュメント情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '404':
+          description: ドキュメントが見つかりません
+    put:
+      summary: 特定のドキュメントを更新
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ドキュメントID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Document'
+      responses:
+        '200':
+          description: 更新されたドキュメント
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '404':
+          description: ドキュメントが見つかりません
+    delete:
+      summary: 特定のドキュメントを削除
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ドキュメントID
+      responses:
+        '204':
+          description: ドキュメントが正常に削除されました
+        '404':
+          description: ドキュメントが見つかりません
+
+
