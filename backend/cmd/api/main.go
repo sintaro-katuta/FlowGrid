@@ -14,7 +14,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// データベースに接続する
-	db, err := models.DBConnect()
+	db, err := config.DBConnect()
 	if err != nil {
 		log.Fatal(err)
 	}
