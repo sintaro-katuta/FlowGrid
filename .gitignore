@@ -25,4 +25,4 @@ vite.config.ts.timestamp-*
 # Frontend
 .pnpm-store/*
 **/.svelte-kit/*
-**/tmp/*
+**/tmp/
