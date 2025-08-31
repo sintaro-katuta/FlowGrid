@@ -1,16 +1,11 @@
 openapi: 3.0.3
 info:
-  title: プロジェクト管理システム API
+  title: FlowGrid API
   description: ユーザー、企業、プロジェクト、タスク、チーム、ドキュメント等を管理するためのAPIシステム
   version: 1.0.0
-  contact:
-    name: API Support
-    email: support@example.com
 servers:
-  - url: https://api.example.com/v1
-    description: Production server
-  - url: https://staging-api.example.com/v1
-    description: Staging server
+  - url: http://localhost:8080/v1
+    description: Development server
 tags:
   - name: User
     description: ユーザー管理
@@ -28,6 +23,12 @@ tags:
     description: チーム管理
   - name: Document
     description: ドキュメント管理
+  - name: Role
+    description: 役割管理
+  - name: Service
+    description: サービス管理
+  - name: Status
+    description: ステータス管理
 
 paths:
   /users:
@@ -700,6 +701,259 @@ paths:
           description: Document deleted successfully.
         '404':
           $ref: '#/components/responses/NotFound'
+  /roles:
+    get:
+      tags: [Role]
+      summary: 全ロール取得
+      operationId: getAllRoles
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: A list of roles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Role]
+      summary: ロール作成
+      operationId: createRole
+      requestBody:
+        $ref: '#/components/requestBodies/Role'
+      responses:
+        '201':
+          description: Role created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /roles/{id}:
+    get:
+      tags: [Role]
+      summary: ロール取得
+      operationId: getRoleById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: A single role.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Role]
+      summary: ロール更新
+      operationId: updateRoleById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        $ref: '#/components/requestBodies/Role'
+      responses:
+        '200':
+          description: Role updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Role]
+      summary: ロール削除
+      operationId: deleteRoleById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Role deleted successfully.
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /services:
+    get:
+      tags: [Service]
+      summary: 全サービス取得
+      operationId: getAllServices
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: company_id
+          in: query
+          description: Filter by company ID.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of services.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Service]
+      summary: サービス作成
+      operationId: createService
+      requestBody:
+        $ref: '#/components/requestBodies/Service'
+      responses:
+        '201':
+          description: Service created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /services/{id}:
+    get:
+      tags: [Service]
+      summary: サービス取得
+      operationId: getServiceById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: A single service.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Service]
+      summary: サービス更新
+      operationId: updateServiceById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        $ref: '#/components/requestBodies/Service'
+      responses:
+        '200':
+          description: Service updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Service]
+      summary: サービス削除
+      operationId: deleteServiceById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Service deleted successfully.
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /statuses:
+    get:
+      tags: [Status]
+      summary: 全ステータス取得
+      operationId: getAllStatuses
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: A list of statuses.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Status'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags: [Status]
+      summary: ステータス作成
+      operationId: createStatus
+      requestBody:
+        $ref: '#/components/requestBodies/Status'
+      responses:
+        '201':
+          description: Status created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /statuses/{id}:
+    get:
+      tags: [Status]
+      summary: ステータス取得
+      operationId: getStatusById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: A single status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Status]
+      summary: ステータス更新
+      operationId: updateStatusById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        $ref: '#/components/requestBodies/Status'
+      responses:
+        '200':
+          description: Status updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Status]
+      summary: ステータス削除
+      operationId: deleteStatusById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Status deleted successfully.
+        '404':
+          $ref: '#/components/responses/NotFound'
 
 components:
   schemas:
@@ -806,6 +1060,41 @@ components:
           type: integer
         task_id:
           type: integer
+    RoleBase:
+      type: object
+      required: [ "name", "description", "permissions" ]
+      properties:
+        name:
+          type: string
+          example: "管理者"
+        description:
+          type: string
+          example: "プロジェクトの管理者"
+        permissions:
+          type: array
+          items:
+            type: string
+            example: "プロジェクトの作成"
+    ServiceBase:
+      type: object
+      required: [ "name", "description" ]
+      properties:
+        name:
+          type: string
+          example: "ユーザー管理サービス"
+        description:
+          type: string
+          example: "ユーザー情報を管理するサービス"
+    StatusBase:
+      type: object
+      required: [ "name", "description" ]
+      properties:
+        name:
+          type: string
+          example: "進行中"
+        description:
+          type: string
+          example: "タスクが進行中であることを示します"
 
     # Response Schemas
     IdField:
@@ -864,6 +1153,21 @@ components:
       allOf:
         - $ref: '#/components/schemas/IdField'
         - $ref: '#/components/schemas/DocumentBase'
+        - $ref: '#/components/schemas/TimestampFields'
+    Role:
+      allOf:
+        - $ref: '#/components/schemas/IdField'
+        - $ref: '#/components/schemas/RoleBase'
+        - $ref: '#/components/schemas/TimestampFields'
+    Service:
+      allOf:
+        - $ref: '#/components/schemas/IdField'
+        - $ref: '#/components/schemas/ServiceBase'
+        - $ref: '#/components/schemas/TimestampFields'
+    Status:
+      allOf:
+        - $ref: '#/components/schemas/IdField'
+        - $ref: '#/components/schemas/StatusBase'
         - $ref: '#/components/schemas/TimestampFields'
 
     # Other Schemas
@@ -977,6 +1281,27 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/DocumentBase'
+    Role:
+      description: Role object that needs to be added or updated.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RoleBase'
+    Service:
+      description: Service object that needs to be added or updated.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServiceBase'
+    Status:
+      description: Status object that needs to be added or updated.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StatusBase'
 
   responses:
     NotFound:
