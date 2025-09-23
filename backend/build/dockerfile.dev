@@ -9,7 +9,7 @@ FROM golang:1.24-alpine
 RUN apk add --no-cache git ca-certificates tzdata curl
 
 # Air（ホットリロードツール）をインストール
-RUN go install github.com/air-verse/air@latest
+RUN go install github.com/cosmtrek/air@v1.50.0
 
 # 作業ディレクトリを設定
 WORKDIR /app

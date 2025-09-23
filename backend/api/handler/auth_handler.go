@@ -2,7 +2,9 @@
 package handler // パッケージ名を handler にします
 
 import (
+	"database/sql"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 	"github.com/gin-gonic/gin"
@@ -12,30 +14,66 @@ import (
 
 // --- グローバルではなく、ハンドラー構造体の一部として定義 ---
 type AuthHandler struct {
-	// 将来的にDB接続などが必要になったら、ここにフィールドを追加する
-	// db *sql.DB
+	DB *sql.DB
 }
 
 // NewAuthHandler はAuthHandlerのインスタンスを生成します
-func NewAuthHandler() *AuthHandler {
-	return &AuthHandler{}
+func NewAuthHandler(db *sql.DB) *AuthHandler {
+	return &AuthHandler{DB: db}
 }
 
 // --- データとJWT関連の定義 (本来はより適切な場所に移動) ---
 var users = make(map[string]string)
-var jwtKey = []byte("my_secret_key")
 var blacklistedTokens = make(map[string]bool) // ブラックリストされたトークンを保存
 
 type Claims struct {
 	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
+
+// getJWTKey は環境変数からJWTシークレットを取得します
+func getJWTKey() []byte {
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		return []byte("fallback-secret-key")
+	}
+	return []byte(jwtSecret)
+}
 func (h *AuthHandler) Register(c *gin.Context) {
-	// (処理内容は同じ)
 	var req struct { Username string `json:"username"`; Password string `json:"password"` }
 	if err := c.ShouldBindJSON(&req); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"} ); return }
+	
+	// パスワードをハッシュ化（メモリ内認証用）
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil { c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"} ); return }
+	
+	// ユーザー名をデータベースに保存
+	// usersテーブルはname, email, role_idが必須なので、usernameをnameとemailに使用
+	// role_idはデフォルトで2を設定（userロール）
+	email := req.Username + "@example.com"
+	
+	// まずユーザーが既に存在するかチェック
+	var existingUserID int
+	err = h.DB.QueryRow("SELECT id FROM users WHERE email = ?", email).Scan(&existingUserID)
+	if err == nil {
+		// ユーザーが既に存在する場合
+		c.JSON(http.StatusConflict, gin.H{"error": "User already exists"})
+		return
+	} else if err != sql.ErrNoRows {
+		// データベースエラーの場合
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+	
+	// ユーザーが存在しない場合は新規作成
+	_, err = h.DB.Exec("INSERT INTO users (name, email, role_id) VALUES (?, ?, ?)", 
+		req.Username, email, 2)
+	if err != nil { 
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save user to database"} )
+		return 
+	}
+	
+	// パスワードはメモリ内に保存（データベースには保存しない）
 	users[req.Username] = string(hashedPassword)
 	c.JSON(http.StatusOK, gin.H{"message": "User created successfully"} )
 }
@@ -51,7 +89,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	expirationTime := time.Now().Add(5 * time.Minute)
 	claims := &Claims{ Username: req.Username, RegisteredClaims: jwt.RegisteredClaims{ ExpiresAt: jwt.NewNumericDate(expirationTime), }, }
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
+	tokenString, err := token.SignedString(getJWTKey())
 	if err != nil { c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create token"} ); return }
 	c.JSON(http.StatusOK, gin.H{"token": tokenString} )
 }
@@ -77,7 +115,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	// トークンを検証
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
+		return getJWTKey(), nil
 	})
 
 	if err != nil || !token.Valid {
