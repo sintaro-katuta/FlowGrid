@@ -3,6 +3,7 @@ package api
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -11,9 +12,12 @@ import (
 	"github.com/sintaro/FlowGrid/backend/api/handler"
  )
 
-// SetupRouter はAuthHandlerを受け取り、ルーターをセットアップします
-func SetupRouter(authHandler *handler.AuthHandler) *gin.Engine {
+// SetupRouter はAuthHandlerとTaskHandlerを受け取り、ルーターをセットアップします
+func SetupRouter(authHandler *handler.AuthHandler, taskHandler *handler.TaskHandler, projectHandler *handler.ProjectHandler) *gin.Engine {
 	r := gin.Default()
+
+	// ヘルスチェックエンドポイント
+	r.GET("/health", healthCheck)
 
 	// ルーティング設定
 	// ハンドラーのメソッドを呼び出す形に修正
@@ -27,9 +31,26 @@ func SetupRouter(authHandler *handler.AuthHandler) *gin.Engine {
 	{
 		authRequired.GET("/profile", authHandler.Profile)
 		authRequired.POST("/logout", authHandler.Logout)
+		
+		// タスク関連のルート
+		authRequired.GET("/tasks", taskHandler.GetAllTasksGroupedByStatus)
+		authRequired.GET("/tasks/filter", taskHandler.GetTasksByStatus)
+		
+		// プロジェクト進捗率関連のルート
+		authRequired.GET("/projects/progress", projectHandler.GetAllProjectsProgress)
+		authRequired.GET("/projects/:id/progress", projectHandler.GetProjectProgress)
+		authRequired.GET("/sprints/:id/progress", projectHandler.GetSprintProgress)
 	}
 
 	return r
+}
+
+// healthCheck はヘルスチェックエンドポイントのハンドラー
+func healthCheck(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status": "OK",
+		"message": "Server is running",
+	})
 }
 
 var blacklistedTokens = make(map[string]bool) // ブラックリストされたトークンを保存（handler側と共有）
@@ -54,8 +75,16 @@ func authMiddleware() gin.HandlerFunc {
 			return
 		}
 		
+		// JWTシークレットキーを環境変数から取得
+		jwtSecret := os.Getenv("JWT_SECRET")
+		if jwtSecret == "" {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "JWT secret not configured"})
+			c.Abort()
+			return
+		}
+		
 		claims := &Claims{} // ここでClaimsを使えるようにする
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) { return jwtKey, nil }) // ここでjwtKeyを使えるようにする
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) { return []byte(jwtSecret), nil })
 		if err != nil || !token.Valid { c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"} ); c.Abort(); return }
 		c.Set("username", claims.Username)
 		c.Next()

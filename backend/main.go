@@ -2,19 +2,30 @@
 package main
 
 import (
+	"log"
 	"github.com/sintaro/FlowGrid/backend/api"
 	"github.com/sintaro/FlowGrid/backend/api/handler" // handlerパッケージもインポート
+	"github.com/sintaro/FlowGrid/backend/models" // modelsパッケージをインポート
 )
 
 func main() {
-	// 1. 依存関係のインスタンス化
-	// まずハンドラーを生成
-	authHandler := handler.NewAuthHandler()
+	// 1. データベース接続の確立
+	db, err := models.DBConnect()
+	if err != nil {
+		log.Fatal("Database connection failed:", err)
+	}
+	defer db.Close()
 
-	// 2. 依存性の注入
+	// 2. 依存関係のインスタンス化
+	// データベース接続を渡してハンドラーを生成
+	authHandler := handler.NewAuthHandler(db)
+	taskHandler := handler.NewTaskHandler(db)
+	projectHandler := handler.NewProjectHandler(db)
+
+	// 3. 依存性の注入
 	// 生成したハンドラーをルーターに渡す
-	router := api.SetupRouter(authHandler)
+	router := api.SetupRouter(authHandler, taskHandler, projectHandler)
 
-	// 3. サーバーの起動
+	// 4. サーバーの起動
 	router.Run(":8080")
 }
