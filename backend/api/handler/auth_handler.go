@@ -40,21 +40,16 @@ func getJWTKey() []byte {
 	return []byte(jwtSecret)
 }
 func (h *AuthHandler) Register(c *gin.Context) {
-	var req struct { Username string `json:"username"`; Password string `json:"password"` }
+	var req struct { Email string `json:"email"`; Password string `json:"password"` }
 	if err := c.ShouldBindJSON(&req); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"} ); return }
 	
 	// パスワードをハッシュ化（メモリ内認証用）
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil { c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"} ); return }
 	
-	// ユーザー名をデータベースに保存
-	// usersテーブルはname, email, role_idが必須なので、usernameをnameとemailに使用
-	// role_idはデフォルトで2を設定（userロール）
-	email := req.Username + "@example.com"
-	
 	// まずユーザーが既に存在するかチェック
 	var existingUserID int
-	err = h.DB.QueryRow("SELECT id FROM users WHERE email = ?", email).Scan(&existingUserID)
+	err = h.DB.QueryRow("SELECT id FROM users WHERE email = ?", req.Email).Scan(&existingUserID)
 	if err == nil {
 		// ユーザーが既に存在する場合
 		c.JSON(http.StatusConflict, gin.H{"error": "User already exists"})
@@ -66,28 +61,28 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 	
 	// ユーザーが存在しない場合は新規作成
+	// nameフィールドには一旦emailと同じ値を設定
 	_, err = h.DB.Exec("INSERT INTO users (name, email, role_id) VALUES (?, ?, ?)", 
-		req.Username, email, 2)
+		req.Email, req.Email, 2)
 	if err != nil { 
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save user to database"} )
 		return 
 	}
 	
 	// パスワードはメモリ内に保存（データベースには保存しない）
-	users[req.Username] = string(hashedPassword)
+	users[req.Email] = string(hashedPassword)
 	c.JSON(http.StatusOK, gin.H{"message": "User created successfully"} )
 }
 
 // Login はログイン処理を行います
 func (h *AuthHandler) Login(c *gin.Context) {
-	// (処理内容は同じ)
-	var req struct { Username string `json:"username"`; Password string `json:"password"` }
+	var req struct { Email string `json:"email"`; Password string `json:"password"` }
 	if err := c.ShouldBindJSON(&req); err != nil { c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"} ); return }
-	storedPassword, ok := users[req.Username]
+	storedPassword, ok := users[req.Email]
 	if !ok { c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"} ); return }
 	if err := bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(req.Password)); err != nil { c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"} ); return }
 	expirationTime := time.Now().Add(5 * time.Minute)
-	claims := &Claims{ Username: req.Username, RegisteredClaims: jwt.RegisteredClaims{ ExpiresAt: jwt.NewNumericDate(expirationTime), }, }
+	claims := &Claims{ Username: req.Email, RegisteredClaims: jwt.RegisteredClaims{ ExpiresAt: jwt.NewNumericDate(expirationTime), }, }
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(getJWTKey())
 	if err != nil { c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create token"} ); return }
