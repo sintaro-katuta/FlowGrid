@@ -14,11 +14,10 @@ JWT_SECRET = "your-super-secret-jwt-key-for-development"
 # 本番環境
 [env.production]
 [[d1_databases]]
-binding = "DB"
+binding = "DB_PROD"
 database_name = "flowgrid-db"
 database_id = "your-database-id-here" # デプロイ後に設定
 
 # ビルド設定
 [build]
 command = "go build -o dist/main main_worker.go"
-upload.format = "service"
