@@ -1,6 +1,7 @@
 name = "flowgrid-backend"
 compatibility_date = "2025-09-28"
 compatibility_flags = ["nodejs_compat"]
+main = "dist/main"
 
 # デフォルト環境（開発用）
 [[d1_databases]]
