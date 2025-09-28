@@ -20,40 +20,10 @@ type Env struct {
 	JWT_SECRET string `json:"JWT_SECRET"`
 }
 
-// リクエストハンドラー
+// Cloudflare Workersのエントリーポイント
 func main() {
-	// Ginルーターの設定（Cloudflare Workers用に調整）
-	router := gin.New()
-	router.Use(gin.Recovery())
-
-	// CORS設定
-	router.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
-	})
-
-	// D1データベース接続のシミュレーション
-	// 実際のCloudflare Workers環境ではenv.DBからアクセス
-	db := &D1DatabaseAdapter{}
-
-	// ハンドラーの初期化
-	authHandler := handler.NewAuthHandler(db)
-	taskHandler := handler.NewTaskHandler(db)
-	projectHandler := handler.NewProjectHandler(db)
-
-	// ルーティング設定
-	setupRoutes(router, authHandler, taskHandler, projectHandler)
-
-	// Cloudflare Workers用のエクスポート
-	// 実際のデプロイ時にはこの関数が呼び出される
+	// この関数はCloudflare Workersによって呼び出される
+	// 実際のリクエスト処理はHandleRequest関数で行う
 }
 
 // D1データベースアダプター
@@ -93,6 +63,7 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	// Ginルーターでリクエストを処理
 	router.ServeHTTP(w, r)
 }
+
 
 // Ginルーターのセットアップ
 func setupGinRouter(env *Env) *gin.Engine {
