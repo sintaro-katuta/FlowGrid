@@ -18,12 +18,7 @@ binding = "DB"
 database_name = "flowgrid-db"
 database_id = "your-database-id-here" # デプロイ後に設定
 
-[vars]
-JWT_SECRET = "your-super-secret-jwt-key-for-production"
-
 # ビルド設定
 [build]
-command = "go build -o dist/main main.go"
-
-[build.upload]
-format = "service"
+command = "go build -o dist/main main_worker.go"
+upload.format = "service"
