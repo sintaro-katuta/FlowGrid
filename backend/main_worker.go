@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/sintaro/FlowGrid/backend/api/handler"
-	"github.com/sintaro/FlowGrid/backend/db"
 
 	"github.com/gin-gonic/gin"
 )
