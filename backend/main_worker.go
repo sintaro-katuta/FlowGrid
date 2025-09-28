@@ -2,13 +2,12 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
-	"strings"
 
-	"github.com/sintaro/FlowGrid/backend/api"
 	"github.com/sintaro/FlowGrid/backend/api/handler"
-	"github.com/sintaro/FlowGrid/backend/models"
+	"github.com/sintaro/FlowGrid/backend/db"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,23 +16,9 @@ import (
 type Env struct {
 	DB interface {
 		Exec(query string, args ...interface{}) error
-		Prepare(query string) (*Stmt, error)
+		Prepare(query string) (*sql.Stmt, error)
 	} `json:"DB"`
 	JWT_SECRET string `json:"JWT_SECRET"`
-}
-
-// SQLite互換のステートメントインターフェース
-type Stmt interface {
-	Exec(args ...interface{}) error
-	Query(args ...interface{}) (*Rows, error)
-	Close() error
-}
-
-// SQLite互換の行インターフェース
-type Rows interface {
-	Next() bool
-	Scan(dest ...interface{}) error
-	Close() error
 }
 
 // リクエストハンドラー
@@ -75,23 +60,23 @@ func main() {
 // D1データベースアダプター
 type D1DatabaseAdapter struct{}
 
-func (d *D1DatabaseAdapter) Exec(query string, args ...interface{}) (api.Result, error) {
+func (d *D1DatabaseAdapter) Exec(query string, args ...interface{}) (sql.Result, error) {
 	// Cloudflare D1のExecメソッドをシミュレート
 	// 実際の実装ではenv.DB.Exec()を使用
 	return nil, nil
 }
 
-func (d *D1DatabaseAdapter) Query(query string, args ...interface{}) (*api.Rows, error) {
+func (d *D1DatabaseAdapter) Query(query string, args ...interface{}) (*sql.Rows, error) {
 	// Cloudflare D1のQueryメソッドをシミュレート
 	return nil, nil
 }
 
-func (d *D1DatabaseAdapter) QueryRow(query string, args ...interface{}) *api.Row {
+func (d *D1DatabaseAdapter) QueryRow(query string, args ...interface{}) *sql.Row {
 	// Cloudflare D1のQueryRowメソッドをシミュレート
 	return nil
 }
 
-func (d *D1DatabaseAdapter) Prepare(query string) (*api.Stmt, error) {
+func (d *D1DatabaseAdapter) Prepare(query string) (*sql.Stmt, error) {
 	// Cloudflare D1のPrepareメソッドをシミュレート
 	return nil, nil
 }
