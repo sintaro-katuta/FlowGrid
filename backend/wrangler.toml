@@ -1,0 +1,29 @@
+name = "flowgrid-backend"
+compatibility_date = "2025-09-28"
+compatibility_flags = ["nodejs_compat"]
+
+# デフォルト環境（開発用）
+[[d1_databases]]
+binding = "DB"
+database_name = "flowgrid-db-dev"
+database_id = "your-dev-database-id-here" # デプロイ後に設定
+
+[vars]
+JWT_SECRET = "your-super-secret-jwt-key-for-development"
+
+# 本番環境
+[env.production]
+[[d1_databases]]
+binding = "DB"
+database_name = "flowgrid-db"
+database_id = "your-database-id-here" # デプロイ後に設定
+
+[vars]
+JWT_SECRET = "your-super-secret-jwt-key-for-production"
+
+# ビルド設定
+[build]
+command = "go build -o dist/main main.go"
+
+[build.upload]
+format = "service"

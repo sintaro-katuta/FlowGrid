@@ -10,15 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+	"github.com/sintaro/FlowGrid/backend/db"
  )
 
 // --- グローバルではなく、ハンドラー構造体の一部として定義 ---
 type AuthHandler struct {
-	DB *sql.DB
+	DB db.Database
 }
 
 // NewAuthHandler はAuthHandlerのインスタンスを生成します
-func NewAuthHandler(db *sql.DB) *AuthHandler {
+func NewAuthHandler(db db.Database) *AuthHandler {
 	return &AuthHandler{DB: db}
 }
 

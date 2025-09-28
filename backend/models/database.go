@@ -3,8 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
+	_ "github.com/mattn/go-sqlite3"
 	"os"
 )
 
@@ -16,42 +15,33 @@ type Server struct {
 func DBConnect() (*sql.DB, error) {
 	var err error
 
-	// .envファイルを読み込む
-	err = godotenv.Load()
+	// 環境変数を変数に格納する
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = "./flowgrid.db" // デフォルトパス
+	}
+
+	// SQLiteデータベースを開く
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
-		fmt.Println("Error open .env file")
+		fmt.Println("DB open Error:", err)
 		return nil, err
 	}
 
-	// 環境変数を変数に格納する
-	dbUser := os.Getenv("DB_USER")
-	dbPass := os.Getenv("DB_PASS")
-	dbHost := os.Getenv("DB_HOST")
-	dbName := os.Getenv("DB_NAME")
-
-	// 接続プロパティをキャプチャする
-	cfg := mysql.Config{
-		User:   dbUser,
-		Passwd: dbPass,
-		Net:    "tcp",
-		Addr:   dbHost,
-		DBName: dbName,
-	}
-
-	// データベースを開く
-	db, err := sql.Open("mysql", cfg.FormatDSN())
+	// 外部キー制約を有効にする
+	_, err = db.Exec("PRAGMA foreign_keys = ON;")
 	if err != nil {
-		fmt.Println("DB open Error")
+		fmt.Println("Error enabling foreign keys:", err)
 		return nil, err
 	}
 
 	// 接続が有効であるか確認する
 	pingErr := db.Ping()
 	if pingErr != nil {
-		fmt.Println("pingErr")
+		fmt.Println("pingErr:", pingErr)
 		return nil, pingErr
 	}
 
-	fmt.Println("接続成功！！")
+	fmt.Println("SQLite接続成功！！")
 	return db, nil
 }

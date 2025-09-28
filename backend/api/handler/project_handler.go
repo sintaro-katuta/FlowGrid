@@ -6,15 +6,16 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sintaro/FlowGrid/backend/db"
 )
 
 // ProjectHandler はプロジェクト関連のAPIハンドラー
 type ProjectHandler struct {
-	DB *sql.DB
+	DB db.Database
 }
 
 // NewProjectHandler はProjectHandlerのインスタンスを生成します
-func NewProjectHandler(db *sql.DB) *ProjectHandler {
+func NewProjectHandler(db db.Database) *ProjectHandler {
 	return &ProjectHandler{DB: db}
 }
 

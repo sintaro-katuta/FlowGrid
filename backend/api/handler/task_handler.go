@@ -2,19 +2,19 @@
 package handler
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sintaro/FlowGrid/backend/db"
 )
 
 // TaskHandler はタスク関連のAPIハンドラー
 type TaskHandler struct {
-	DB *sql.DB
+	DB db.Database
 }
 
 // NewTaskHandler はTaskHandlerのインスタンスを生成します
-func NewTaskHandler(db *sql.DB) *TaskHandler {
+func NewTaskHandler(db db.Database) *TaskHandler {
 	return &TaskHandler{DB: db}
 }
 
