@@ -2,132 +2,196 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
-
-	"github.com/sintaro/FlowGrid/backend/api/handler"
-
-	"github.com/gin-gonic/gin"
+	"strings"
 )
-
-// Cloudflare Workersの環境変数
-type Env struct {
-	DB interface {
-		Exec(query string, args ...interface{}) error
-		Prepare(query string) (*sql.Stmt, error)
-	} `json:"DB"`
-	JWT_SECRET string `json:"JWT_SECRET"`
-}
 
 // Cloudflare Workersのエントリーポイント
 func main() {
-	// この関数はCloudflare Workersによって呼び出される
-	// 実際のリクエスト処理はHandleRequest関数で行う
+	// Cloudflare Workersではmain()は空で、exportされた関数が呼び出される
 }
 
-// D1データベースアダプター
-type D1DatabaseAdapter struct{}
-
-func (d *D1DatabaseAdapter) Exec(query string, args ...interface{}) (sql.Result, error) {
-	// Cloudflare D1のExecメソッドをシミュレート
-	// 実際の実装ではenv.DB.Exec()を使用
-	return nil, nil
-}
-
-func (d *D1DatabaseAdapter) Query(query string, args ...interface{}) (*sql.Rows, error) {
-	// Cloudflare D1のQueryメソッドをシミュレート
-	return nil, nil
-}
-
-func (d *D1DatabaseAdapter) QueryRow(query string, args ...interface{}) *sql.Row {
-	// Cloudflare D1のQueryRowメソッドをシミュレート
-	return nil
-}
-
-func (d *D1DatabaseAdapter) Prepare(query string) (*sql.Stmt, error) {
-	// Cloudflare D1のPrepareメソッドをシミュレート
-	return nil, nil
-}
-
-// Cloudflare Workers用のハンドラー関数
+// メインハンドラー - Cloudflare Workersのエントリーポイント
+//export HandleRequest
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
-	// 環境変数の取得（Cloudflare Workersから注入）
-	env := &Env{
-		JWT_SECRET: "your-jwt-secret", // 実際は環境変数から取得
-	}
-
-	// リクエストの処理
-	router := setupGinRouter(env)
-	
-	// Ginルーターでリクエストを処理
-	router.ServeHTTP(w, r)
-}
-
-
-// Ginルーターのセットアップ
-func setupGinRouter(env *Env) *gin.Engine {
-	router := gin.New()
-	router.Use(gin.Recovery())
-
 	// CORS設定
-	router.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 
-		c.Next()
-	})
+	// パスに基づいてルーティング
+	path := r.URL.Path
+	method := r.Method
 
-	// データベースアダプターの作成
-	db := &D1DatabaseAdapter{}
-
-	// ハンドラーの初期化
-	authHandler := handler.NewAuthHandler(db)
-	taskHandler := handler.NewTaskHandler(db)
-	projectHandler := handler.NewProjectHandler(db)
-
-	// ルーティング設定
-	setupRoutes(router, authHandler, taskHandler, projectHandler)
-
-	return router
+	switch {
+	case path == "/health" && method == "GET":
+		handleHealthCheck(w, r)
+	case strings.HasPrefix(path, "/auth"):
+		handleAuthRoutes(w, r)
+	case strings.HasPrefix(path, "/projects"):
+		handleProjectRoutes(w, r)
+	case strings.HasPrefix(path, "/tasks"):
+		handleTaskRoutes(w, r)
+	default:
+		jsonResponse(w, http.StatusNotFound, map[string]string{
+			"error": "Route not found",
+		})
+	}
 }
 
-// ルーティング設定（既存のapi.SetupRouterから移植）
-func setupRoutes(router *gin.Engine, authHandler *handler.AuthHandler, taskHandler *handler.TaskHandler, projectHandler *handler.ProjectHandler) {
-	// 認証ルート
-	auth := router.Group("/auth")
-	{
-		auth.POST("/register", authHandler.Register)
-		auth.POST("/login", authHandler.Login)
-	}
+// ヘルスチェック
+func handleHealthCheck(w http.ResponseWriter, r *http.Request) {
+	jsonResponse(w, http.StatusOK, map[string]string{
+		"status":  "ok",
+		"message": "FlowGrid API is running on Cloudflare Workers",
+	})
+}
 
-	// プロジェクトルート
-	projects := router.Group("/projects")
-	{
-		projects.GET("/", projectHandler.GetAllProjectsProgress)
-		projects.GET("/:id", projectHandler.GetProjectProgress)
-		projects.GET("/sprint/:id", projectHandler.GetSprintProgress)
-	}
+// 認証ルートの処理
+func handleAuthRoutes(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	method := r.Method
 
-	// タスクルート
-	tasks := router.Group("/tasks")
-	{
-		tasks.GET("/", taskHandler.GetAllTasksGroupedByStatus)
-		tasks.GET("/status", taskHandler.GetTasksByStatus)
-	}
-
-	// ヘルスチェック
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status": "ok",
-			"message": "FlowGrid API is running on Cloudflare Workers",
+	switch {
+	case path == "/auth/register" && method == "POST":
+		handleRegister(w, r)
+	case path == "/auth/login" && method == "POST":
+		handleLogin(w, r)
+	default:
+		jsonResponse(w, http.StatusNotFound, map[string]string{
+			"error": "Auth route not found",
 		})
+	}
+}
+
+// プロジェクトルートの処理
+func handleProjectRoutes(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	method := r.Method
+
+	switch {
+	case path == "/projects" && method == "GET":
+		handleGetAllProjects(w, r)
+	case strings.HasPrefix(path, "/projects/") && method == "GET":
+		// プロジェクトIDの抽出
+		parts := strings.Split(path, "/")
+		if len(parts) >= 3 {
+			projectID := parts[2]
+			handleGetProject(w, r, projectID)
+		} else {
+			jsonResponse(w, http.StatusBadRequest, map[string]string{
+				"error": "Invalid project ID",
+			})
+		}
+	case strings.HasPrefix(path, "/projects/sprint/") && method == "GET":
+		// スプリントIDの抽出
+		parts := strings.Split(path, "/")
+		if len(parts) >= 4 {
+			sprintID := parts[3]
+			handleGetSprint(w, r, sprintID)
+		} else {
+			jsonResponse(w, http.StatusBadRequest, map[string]string{
+				"error": "Invalid sprint ID",
+			})
+		}
+	default:
+		jsonResponse(w, http.StatusNotFound, map[string]string{
+			"error": "Project route not found",
+		})
+	}
+}
+
+// タスクルートの処理
+func handleTaskRoutes(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	method := r.Method
+
+	switch {
+	case path == "/tasks" && method == "GET":
+		handleGetAllTasks(w, r)
+	case path == "/tasks/status" && method == "GET":
+		handleGetTasksByStatus(w, r)
+	default:
+		jsonResponse(w, http.StatusNotFound, map[string]string{
+			"error": "Task route not found",
+		})
+	}
+}
+
+// 簡易的なハンドラー関数
+func handleRegister(w http.ResponseWriter, r *http.Request) {
+	jsonResponse(w, http.StatusOK, map[string]string{
+		"message": "Register endpoint - to be implemented",
+	})
+}
+
+func handleLogin(w http.ResponseWriter, r *http.Request) {
+	jsonResponse(w, http.StatusOK, map[string]string{
+		"message": "Login endpoint - to be implemented",
+	})
+}
+
+func handleGetAllProjects(w http.ResponseWriter, r *http.Request) {
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"projects": []map[string]interface{}{
+			{"id": 1, "name": "Project 1", "progress": 75},
+			{"id": 2, "name": "Project 2", "progress": 50},
+		},
+	})
+}
+
+func handleGetProject(w http.ResponseWriter, r *http.Request, projectID string) {
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"id":      projectID,
+		"name":    fmt.Sprintf("Project %s", projectID),
+		"progress": 75,
+	})
+}
+
+func handleGetSprint(w http.ResponseWriter, r *http.Request, sprintID string) {
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"id":      sprintID,
+		"name":    fmt.Sprintf("Sprint %s", sprintID),
+		"progress": 60,
+	})
+}
+
+func handleGetAllTasks(w http.ResponseWriter, r *http.Request) {
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"tasks": map[string][]map[string]interface{}{
+			"todo": {
+				{"id": 1, "title": "Task 1", "status": "todo"},
+				{"id": 2, "title": "Task 2", "status": "todo"},
+			},
+			"in_progress": {
+				{"id": 3, "title": "Task 3", "status": "in_progress"},
+			},
+			"done": {
+				{"id": 4, "title": "Task 4", "status": "done"},
+			},
+		},
+	})
+}
+
+func handleGetTasksByStatus(w http.ResponseWriter, r *http.Request) {
+	status := r.URL.Query().Get("status")
+	if status == "" {
+		status = "todo"
+	}
+	
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"status": status,
+		"tasks": []map[string]interface{}{
+			{"id": 1, "title": fmt.Sprintf("Task for %s", status), "status": status},
+			{"id": 2, "title": fmt.Sprintf("Another task for %s", status), "status": status},
+		},
 	})
 }
 
