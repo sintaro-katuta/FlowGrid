@@ -12,7 +12,6 @@ import (
 )
 
 // Cloudflare Workers用のハンドラー
-//export HandleRequest
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	// CORS設定
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -52,4 +51,9 @@ func jsonResponse(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
+}
+
+// Cloudflare Workersのメインハンドラー
+func main() {
+	// Cloudflare Workersではmain()は空で、HandleRequestが自動的に呼び出される
 }
