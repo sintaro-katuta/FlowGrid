@@ -59,7 +59,7 @@ echo "🚀 Cloudflare Workersにデプロイ中..."
 if [ "$ENV" = "production" ]; then
     wrangler deploy --env production
 else
-    wrangler deploy
+    wrangler deploy --env ""
 fi
 
 echo "✅ デプロイが完了しました！"
