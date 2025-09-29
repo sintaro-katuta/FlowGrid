@@ -57,3 +57,37 @@ func (d *D1Database) Prepare(query string) (*sql.Stmt, error) {
 	// D1のPrepare実装
 	return nil, nil
 }
+
+// MockDatabase - テスト用のモックデータベース
+type MockDatabase struct{}
+
+func (m *MockDatabase) Exec(query string, args ...interface{}) (sql.Result, error) {
+	// モック実装 - 常に成功を返す
+	return &mockResult{}, nil
+}
+
+func (m *MockDatabase) Query(query string, args ...interface{}) (*sql.Rows, error) {
+	// モック実装 - 空の結果を返す
+	return &sql.Rows{}, nil
+}
+
+func (m *MockDatabase) QueryRow(query string, args ...interface{}) *sql.Row {
+	// モック実装 - 空の行を返す
+	return &sql.Row{}
+}
+
+func (m *MockDatabase) Prepare(query string) (*sql.Stmt, error) {
+	// モック実装 - 空のステートメントを返す
+	return &sql.Stmt{}, nil
+}
+
+// mockResult - モックのsql.Result実装
+type mockResult struct{}
+
+func (m *mockResult) LastInsertId() (int64, error) {
+	return 1, nil
+}
+
+func (m *mockResult) RowsAffected() (int64, error) {
+	return 1, nil
+}

@@ -1,95 +1,111 @@
-# Cloudflare Workers Deployment Guide
+# FlowGrid バックエンドデプロイメントガイド
 
-## Issue Summary
+## 概要
 
-The deployment was failing because:
-1. The original `main_worker.go` was not properly structured for Cloudflare Workers
-2. The build process was succeeding but the deploy phase couldn't find the built file
-3. The code was trying to use Gin framework which isn't compatible with Cloudflare Workers
+このプロジェクトは、二重管理の問題を解決し、以下の環境で動作する統一されたバックエンドを提供します：
 
-## Solution Implemented
+- **通常サーバー**: ポート8080で起動する標準的なGoサーバー
+- **Cloudflare Workers**: サーバーレス環境での実行
 
-1. **Simplified Code Structure**: Created a minimal Cloudflare Workers-compatible Go file using standard `net/http` handlers
-2. **Proper Entry Point**: Used `//export HandleRequest` for the Cloudflare Workers entry point
-3. **Basic Routing**: Implemented simple routing for all API endpoints
-4. **CORS Support**: Added proper CORS headers for cross-origin requests
+## アーキテクチャ
 
-## Current Status
+### 統一されたコードベース
 
-The code is now properly structured for Cloudflare Workers deployment. The main changes include:
+以前は `main.go` と `main_worker.go` で二重管理されていましたが、現在は以下の構造で統一されています：
 
-- Removed Gin framework dependencies
-- Simplified to use standard `net/http` handlers
-- Added proper export directive for Cloudflare Workers
-- Implemented basic API endpoints with mock data
-
-## Next Steps for Deployment
-
-1. **Ensure Cloudflare CLI is installed**:
-   ```bash
-   npm install -g wrangler
-   ```
-
-2. **Login to Cloudflare**:
-   ```bash
-   wrangler login
-   ```
-
-3. **Set up environment variables**:
-   ```bash
-   wrangler secret put JWT_SECRET
-   ```
-
-4. **Create D1 databases** (if not already created):
-   ```bash
-   wrangler d1 create flowgrid-db-dev
-   wrangler d1 create flowgrid-db
-   ```
-
-5. **Deploy using the provided script**:
-   ```bash
-   chmod +x deploy.sh
-   ./deploy.sh
-   ```
-
-   Or for production:
-   ```bash
-   ./deploy.sh production
-   ```
-
-## API Endpoints
-
-The following endpoints are now available:
-
-- `GET /health` - Health check
-- `POST /auth/register` - User registration
-- `POST /auth/login` - User login
-- `GET /projects` - Get all projects
-- `GET /projects/{id}` - Get specific project
-- `GET /projects/sprint/{id}` - Get sprint progress
-- `GET /tasks` - Get all tasks grouped by status
-- `GET /tasks/status` - Get tasks by specific status
-
-## Testing
-
-After deployment, test the API:
-
-```bash
-curl https://your-worker.workers.dev/health
+```
+backend/
+├── main.go                 # 通常サーバー用エントリーポイント
+├── worker_adapter.go       # Cloudflare Workers用アダプター
+├── models/database.go      # 環境対応データベース接続
+├── db/database.go          # データベースインターフェース
+└── wrangler.toml          # Cloudflare Workers設定
 ```
 
-## Troubleshooting
+### データベース抽象化
 
-If deployment still fails:
+- **Databaseインターフェース**: SQLiteとCloudflare D1の両方に対応
+- **環境自動検出**: 実行環境に応じて適切なデータベース接続を選択
+- **モックサポート**: テスト用のMockDatabase実装
 
-1. Check that the `dist/main` file is being created during build
-2. Verify Cloudflare account permissions
-3. Check that all required environment variables are set
-4. Review Cloudflare Workers logs with `wrangler tail`
+## デプロイ方法
 
-## Future Enhancements
+### 通常サーバーの起動
 
-- Implement actual database integration with D1
-- Add proper authentication with JWT
-- Implement real business logic for all endpoints
-- Add input validation and error handling
+```bash
+# ビルド
+cd backend
+go build -o dist/server main.go
+
+# 実行
+./dist/server
+```
+
+サーバーは `http://localhost:8080` で起動します。
+
+### Cloudflare Workersへのデプロイ
+
+```bash
+# ビルド
+cd backend
+go build -o dist/worker worker_adapter.go
+
+# デプロイ
+wrangler deploy
+```
+
+## 環境変数
+
+### 共通環境変数
+
+- `JWT_SECRET`: JWTトークンの署名用シークレットキー
+- `ENVIRONMENT`: 実行環境（`production` または `development`）
+
+### 通常サーバー環境変数
+
+- `DB_PATH`: SQLiteデータベースファイルのパス（デフォルト: `./flowgrid.db`）
+
+### Cloudflare Workers環境変数
+
+- `CF_PAGES`: Cloudflare Pages環境かどうか
+- `CLOUDFLARE_WORKERS`: Cloudflare Workers環境かどうか
+
+## ビルド設定
+
+### 通常サーバー
+
+```bash
+go build -o dist/server main.go
+```
+
+### Cloudflare Workers
+
+```bash
+go build -o dist/worker worker_adapter.go
+```
+
+## メリット
+
+1. **コードの統一**: 同じビジネスロジックを両環境で共有
+2. **メンテナンス性向上**: 修正が1箇所で済む
+3. **テスト容易性**: モックデータベースによるテストが可能
+4. **環境対応**: 自動的に実行環境を検出して適切な設定を適用
+
+## トラブルシューティング
+
+### ビルドエラー
+
+- **依存関係エラー**: `go mod tidy` を実行して依存関係を整理
+- **インポートサイクル**: パッケージ構造を確認して循環参照を解消
+
+### 実行時エラー
+
+- **データベース接続エラー**: 環境変数が正しく設定されているか確認
+- **CORSエラー**: フロントエンドのオリジンが許可されているか確認
+
+## 今後の拡張
+
+- [ ] Cloudflare D1データベースの完全対応
+- [ ] 本番環境用のD1アダプター実装
+- [ ] データベースマイグレーションの自動化
+- [ ] モニタリングとロギングの強化
