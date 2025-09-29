@@ -53,8 +53,3 @@ func jsonResponse(w http.ResponseWriter, status int, data interface{}) {
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
 }
-
-// Cloudflare Workersのメインハンドラー（互換性のため）
-func main() {
-	// Cloudflare Workersではmain()は空で、exportされた関数が呼び出される
-}
