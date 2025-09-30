@@ -1,4 +1,4 @@
-// Cloudflare Workers用アダプター
+// Cloudflare Workers用のシンプルなHello World API
 //go:build cloudflare
 // +build cloudflare
 
@@ -21,13 +21,26 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// シンプルなレスポンスを返す
-	response := map[string]string{
-		"message": "FlowGrid API is running on Cloudflare Workers",
-		"status":  "success",
+	// パスに基づいて異なるレスポンスを返す
+	switch r.URL.Path {
+	case "/":
+		response := map[string]string{
+			"message": "Hello World from FlowGrid API!",
+			"status":  "success",
+			"version": "1.0.0",
+		}
+		jsonResponse(w, http.StatusOK, response)
+	case "/health":
+		response := map[string]string{
+			"status": "healthy",
+		}
+		jsonResponse(w, http.StatusOK, response)
+	default:
+		response := map[string]string{
+			"error": "Not Found",
+		}
+		jsonResponse(w, http.StatusNotFound, response)
 	}
-	
-	jsonResponse(w, http.StatusOK, response)
 }
 
 // 簡易的なJSONレスポンス関数

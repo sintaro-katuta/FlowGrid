@@ -1,53 +1,35 @@
 #!/bin/bash
 
-# FlowGrid Backend Deployment Script
-# This script ensures correct deployment to Cloudflare Workers
+# Cloudflare Workersデプロイスクリプト
+# シンプルなHello World APIをデプロイ
 
-echo "🚀 Starting FlowGrid Backend Deployment..."
+set -e
 
-# Check if we're in the backend directory
-if [ ! -f "wrangler.toml" ]; then
-    echo "❌ Error: Please run this script from the backend directory"
-    echo "Usage: cd backend && ./deploy.sh"
+echo "🚀 Cloudflare Workersデプロイを開始します..."
+
+# ビルドディレクトリの作成
+mkdir -p dist
+
+# Goのビルド（Dockerを使用）
+echo "📦 Go WASM workerをビルド中..."
+docker run --rm -v $(pwd):/app -w /app golang:1.24.6 go build -o dist/worker.wasm workers_main.go
+
+# ファイルの存在確認
+if [ ! -f "dist/worker.wasm" ]; then
+    echo "❌ ビルドに失敗しました: dist/worker.wasm が見つかりません"
     exit 1
 fi
 
-# Clean up any previous builds
-echo "🧹 Cleaning previous builds..."
-rm -rf dist/
-mkdir -p dist/
+echo "✅ ビルド完了: dist/worker.wasm"
 
-# Build the worker using Docker
-echo "🔨 Building worker using Docker..."
-docker run --rm -v $(pwd):/app -w /app golang:1.24.6 go build -tags cloudflare -o dist/worker .
+# 環境の選択
+ENV=${1:-"development"}
+echo "🌍 環境: $ENV"
 
-# Verify the build
-if [ ! -f "dist/worker" ]; then
-    echo "❌ Build failed: dist/worker not found"
-    exit 1
-fi
+# デプロイ実行
+echo "🚀 Cloudflare Workersにデプロイ中..."
+wrangler deploy --env $ENV
 
-echo "✅ Build successful: dist/worker created"
-
-# Deploy to Cloudflare Workers
-echo "☁️  Deploying to Cloudflare Workers..."
-
-# Check if wrangler is available, if not try to install it
-if ! command -v wrangler &> /dev/null; then
-    echo "⚠️  Wrangler not found, trying to install..."
-    if command -v npm &> /dev/null; then
-        npm install -g wrangler
-    elif command -v yarn &> /dev/null; then
-        yarn global add wrangler
-    else
-        echo "❌ Cannot install wrangler: npm or yarn not available"
-        echo "Please install wrangler manually: npm install -g wrangler"
-        exit 1
-    fi
-fi
-
-# Deploy using wrangler with environment specification
-echo "🚀 Deploying to production environment..."
-wrangler deploy --env production
-
-echo "🎉 Deployment completed!"
+echo "🎉 デプロイ完了!"
+echo "📡 API URL: https://flowgrid.sintaro-katuta.workers.dev"
+echo "🔍 テストコマンド: curl https://flowgrid.sintaro-katuta.workers.dev"
