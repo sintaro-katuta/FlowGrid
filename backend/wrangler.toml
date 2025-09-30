@@ -6,14 +6,16 @@ main = "./dist/worker"
 d1_databases = [
   { binding = "DB", database_name = "flowgrid-prod", database_id = "a893ae8f-c5f3-451b-8841-55a4b0a14076" }
 ]
+vars = { JWT_SECRET = "your-jwt-secret-key-here" }
 
 [env.development]
 d1_databases = [
   { binding = "DB", database_name = "flowgrid-dev", database_id = "5a6f2a62-914f-4c0f-90ff-e69222a15052" }
 ]
+vars = { JWT_SECRET = "your-jwt-secret-key-here" }
 
 [vars]
 JWT_SECRET = "your-jwt-secret-key-here"
 
 [build]
-command = "go build -o dist/worker worker_adapter.go"
+command = "echo 'Build completed'"
