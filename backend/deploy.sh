@@ -19,7 +19,7 @@ mkdir -p dist/
 
 # Build the worker using Docker
 echo "🔨 Building worker using Docker..."
-docker run --rm -v $(pwd):/app -w /app golang:1.24.6 go build -o dist/worker worker_adapter.go
+docker run --rm -v $(pwd):/app -w /app golang:1.24.6 go build -o dist/worker .
 
 # Verify the build
 if [ ! -f "dist/worker" ]; then
