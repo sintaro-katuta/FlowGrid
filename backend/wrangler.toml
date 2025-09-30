@@ -1,6 +1,5 @@
 name = "flowgrid"
 compatibility_date = "2024-01-01"
-main = "./dist/worker"
 
 [env.production]
 d1_databases = [
@@ -16,6 +15,3 @@ vars = { JWT_SECRET = "your-jwt-secret-key-here" }
 
 [vars]
 JWT_SECRET = "your-jwt-secret-key-here"
-
-[build]
-command = "echo 'Build completed'"
