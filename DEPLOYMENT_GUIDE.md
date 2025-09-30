@@ -42,16 +42,21 @@ cd backend
 # 依存関係の整理
 go mod tidy
 
-# ビルド
-go build -o dist/worker .
-
-# Cloudflare Workersにデプロイ
+# 方法1: 自動デプロイ（推奨）
 wrangler deploy
+
+# 方法2: デプロイスクリプトを使用
+./deploy.sh
 ```
 
 **Cloudflare Workers設定**:
-- メインファイル: `worker_adapter.go`
-- ビルドコマンド: `go build -o dist/worker .`
+- メインファイル: `dist/worker`
+- ビルドコマンド: `go build -o dist/worker worker_adapter.go`
+- **重要**: デプロイコマンドは `wrangler deploy` のみ（`dist/main` を指定しない）
+
+**デプロイエラーの解決**:
+- エラー: `The expected output file at "dist/main" was not found`
+- 解決策: `wrangler deploy dist/main` ではなく `wrangler deploy` を使用
 
 ## 環境変数
 

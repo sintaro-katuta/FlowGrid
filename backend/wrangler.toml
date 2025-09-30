@@ -1,19 +1,19 @@
 name = "flowgrid-api"
 compatibility_date = "2024-01-01"
-main = "./dist/worker"
+main = "./dist/main"
 
 [env.production]
 d1_databases = [
-  { binding = "DB", database_name = "flowgrid-db", database_id = "your-database-id-here" }
+  { binding = "DB", database_name = "flowgrid-prod", database_id = "a893ae8f-c5f3-451b-8841-55a4b0a14076" }
 ]
 
 [env.development]
 d1_databases = [
-  { binding = "DB", database_name = "flowgrid-db-dev", database_id = "your-dev-database-id-here" }
+  { binding = "DB", database_name = "flowgrid-dev", database_id = "5a6f2a62-914f-4c0f-90ff-e69222a15052" }
 ]
 
 [vars]
 JWT_SECRET = "your-jwt-secret-key-here"
 
 [build]
-command = "go build -o dist/worker ./worker_adapter.go"
+command = "go build -o dist/main worker_adapter.go"

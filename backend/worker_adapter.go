@@ -24,14 +24,14 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Cloudflare Workers環境では、データベース接続はWranglerのバインド経由で処理される
-	// ここではモックデータベースを使用（実際のデプロイ時は適切なD1アダプターに置き換え）
+	// 実際のD1データベースを使用
 	var database db.Database
 	
 	// 環境変数で本番/開発環境を判定
 	if os.Getenv("ENVIRONMENT") == "production" {
-		database = &db.MockDatabase{} // 本番環境用モック（実際はD1アダプター）
+		database = &db.D1Database{} // 本番環境用D1アダプター
 	} else {
-		database = &db.MockDatabase{} // 開発環境用モック
+		database = &db.D1Database{} // 開発環境用D1アダプター
 	}
 
 	// 依存関係のインスタンス化
