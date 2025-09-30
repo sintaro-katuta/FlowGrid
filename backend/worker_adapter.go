@@ -1,4 +1,7 @@
 // Cloudflare Workers用アダプター
+//go:build cloudflare
+// +build cloudflare
+
 package main
 
 import (
