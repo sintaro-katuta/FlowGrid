@@ -50,8 +50,8 @@ jobs:
     - name: Deploy to Cloudflare Workers
       run: |
         cd backend
-        # 事前にビルドしたファイルを使用してデプロイ
-        wrangler deploy --env production
+        # テレメトリを無効にしてデプロイ
+        WRANGLER_SEND_METRICS=false wrangler deploy --env production
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         
