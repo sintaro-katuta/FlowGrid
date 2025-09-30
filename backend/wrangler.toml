@@ -16,4 +16,4 @@ d1_databases = [
 JWT_SECRET = "your-jwt-secret-key-here"
 
 [build]
-command = "go build -tags cloudflare -o dist/worker ."
+command = "go build -o dist/worker worker_adapter.go"
