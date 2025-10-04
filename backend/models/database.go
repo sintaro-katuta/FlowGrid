@@ -3,8 +3,8 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"os"
 )
 
@@ -29,17 +29,11 @@ func DBConnect() (*sql.DB, error) {
 	dbHost := os.Getenv("DB_HOST")
 	dbName := os.Getenv("DB_NAME")
 
-	// 接続プロパティをキャプチャする
-	cfg := mysql.Config{
-		User:   dbUser,
-		Passwd: dbPass,
-		Net:    "tcp",
-		Addr:   dbHost,
-		DBName: dbName,
-	}
+	// PostgreSQL接続文字列を作成
+	connStr := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=require", dbUser, dbPass, dbHost, dbName)
 
 	// データベースを開く
-	db, err := sql.Open("mysql", cfg.FormatDSN())
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		fmt.Println("DB open Error")
 		return nil, err
