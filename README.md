@@ -27,9 +27,10 @@ FlowGridは、シンプルで直感的なタスク管理アプリケーション
 
 ### インフラストラクチャ
 - **Docker Compose** - ローカル開発環境
-- **Cloudflare Pages** - フロントエンドホスティング（推奨）
-- **Cloudflare Workers** - サーバーレスAPI（推奨）
-- **Cloudflare D1** - エッジデータベース（推奨）
+- **Railway** - フルスタックホスティング（推奨）
+- **Cloudflare Pages** - フロントエンドホスティング
+- **Cloudflare Workers** - サーバーレスAPI
+- **Cloudflare D1** - エッジデータベース
 
 ## クイックスタート
 
@@ -72,7 +73,33 @@ docker-compose up -d
 
 ## デプロイオプション
 
-### 推奨: Cloudflare（月額0円〜）
+### 推奨: Railway（フルスタックホスティング）
+
+**メリット**:
+- シンプルな設定とデプロイ
+- 自動的なスケーリング
+- データベースアドオンが利用可能
+- GitHubとのシームレスな連携
+
+**デプロイ手順**:
+
+詳細な手順は [RAILWAY_DEPLOYMENT.md](./RAILWAY_DEPLOYMENT.md) を参照してください。
+
+1. **Railwayアカウントの作成**
+   - [Railway](https://railway.app/)でアカウント作成
+   - GitHubアカウントと連携
+
+2. **バックエンドのデプロイ**
+   - 新しいプロジェクトを作成
+   - Root Directory: `backend` を指定
+   - 環境変数を設定
+
+3. **フロントエンドのデプロイ**
+   - 別のプロジェクトを作成
+   - Root Directory: `front` を指定
+   - 環境変数を設定（バックエンドURLなど）
+
+### 代替オプション: Cloudflare（月額0円〜）
 
 **メリット**:
 - 無料枠が充実（実質0円で運用可能）
@@ -147,7 +174,12 @@ docker-compose exec mysql mysql -u user -p flowgrid < backend/migrations/init.sq
 
 ## コスト見積もり
 
-### Cloudflare構成（推奨）
+### Railway構成（推奨）
+- **月額コスト**: 0円〜数百円
+- 無料枠内で十分な機能を提供
+- データベースアドオンを含む
+
+### Cloudflare構成
 - **月額コスト**: 0円〜数百円
 - 無料枠内で十分な機能を提供
 

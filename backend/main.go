@@ -3,6 +3,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"github.com/sintaro/FlowGrid/backend/api"
 	"github.com/sintaro/FlowGrid/backend/api/handler" // handlerパッケージもインポート
 	"github.com/sintaro/FlowGrid/backend/models" // modelsパッケージをインポート
@@ -27,5 +28,15 @@ func main() {
 	router := api.SetupRouter(authHandler, taskHandler, projectHandler)
 
 	// 4. サーバーの起動
-	router.Run(":8080")
+	port := getPort()
+	router.Run(":" + port)
+}
+
+// getPort は環境変数 PORT からポート番号を取得し、デフォルトは "8080"
+func getPort() string {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	return port
 }
