@@ -3,7 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
+	_ "github.com/go-sql-driver/mysql"
 	"os"
 )
 
@@ -31,12 +31,12 @@ func DBConnect() (*sql.DB, error) {
 			return nil, fmt.Errorf("missing required database environment variables")
 		}
 
-		// PostgreSQL接続文字列を作成
-		connStr = fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=require", dbUser, dbPass, dbHost, dbName)
+		// MySQL接続文字列を作成
+		connStr = fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?parseTime=true", dbUser, dbPass, dbHost, dbName)
 	}
 
 	// データベースを開く
-	db, err := sql.Open("postgres", connStr)
+	db, err := sql.Open("mysql", connStr)
 	if err != nil {
 		fmt.Println("DB open Error")
 		return nil, err
