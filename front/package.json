@@ -7,6 +7,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
+    "start": "node build/index.js",
     "prepare": "svelte-kit sync || echo ''",
     "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
@@ -19,6 +20,7 @@
     "@eslint/js": "^9.32.0",
     "@sveltejs/adapter-auto": "^6.0.0",
     "@sveltejs/adapter-cloudflare": "^7.2.3",
+    "@sveltejs/adapter-node": "^5.2.0",
     "@sveltejs/kit": "^2.16.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
@@ -44,6 +46,9 @@
     ]
   },
   "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac",
+  "engines": {
+    "node": ">=20.18.1"
+  },
   "dependencies": {
     "@auth/sveltekit": "^1.10.0",
     "@tailwindcss/vite": "^4.1.10",

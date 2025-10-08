@@ -3,8 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
+	_ "github.com/go-sql-driver/mysql"
 	"os"
 )
 
@@ -16,30 +15,28 @@ type Server struct {
 func DBConnect() (*sql.DB, error) {
 	var err error
 
-	// .envファイルを読み込む
-	err = godotenv.Load()
-	if err != nil {
-		fmt.Println("Error open .env file")
-		return nil, err
-	}
+	// RailwayのDATABASE_URL環境変数を優先的に使用
+	connStr := os.Getenv("DATABASE_URL")
+	
+	// DATABASE_URLが設定されていない場合は個別の環境変数を使用
+	if connStr == "" {
+		dbUser := os.Getenv("DB_USER")
+		dbPass := os.Getenv("DB_PASS")
+		dbHost := os.Getenv("DB_HOST")
+		dbName := os.Getenv("DB_NAME")
 
-	// 環境変数を変数に格納する
-	dbUser := os.Getenv("DB_USER")
-	dbPass := os.Getenv("DB_PASS")
-	dbHost := os.Getenv("DB_HOST")
-	dbName := os.Getenv("DB_NAME")
+		// 環境変数が設定されているか確認
+		if dbUser == "" || dbPass == "" || dbHost == "" || dbName == "" {
+			fmt.Println("Missing required environment variables: DATABASE_URL or DB_USER, DB_PASS, DB_HOST, DB_NAME")
+			return nil, fmt.Errorf("missing required database environment variables")
+		}
 
-	// 接続プロパティをキャプチャする
-	cfg := mysql.Config{
-		User:   dbUser,
-		Passwd: dbPass,
-		Net:    "tcp",
-		Addr:   dbHost,
-		DBName: dbName,
+		// MySQL接続文字列を作成
+		connStr = fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?parseTime=true", dbUser, dbPass, dbHost, dbName)
 	}
 
 	// データベースを開く
-	db, err := sql.Open("mysql", cfg.FormatDSN())
+	db, err := sql.Open("mysql", connStr)
 	if err != nil {
 		fmt.Println("DB open Error")
 		return nil, err
