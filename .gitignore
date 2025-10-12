@@ -23,6 +23,6 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # Frontend
-.pnpm-store/*
+/front/.pnpm-store/*
 **/.svelte-kit/*
 **/tmp/

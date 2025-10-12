@@ -1,13 +1,15 @@
 services:
   frontend:
-   build: front
-   container_name: frontend
-   working_dir: /app
-   volumes:
-     - ./front:/app
-   ports:
+    build:
+      context: ./front
+      dockerfile: dockerfile.dev  # 開発用Dockerfile
+    container_name: frontend
+    working_dir: /app
+    volumes:
+      - ./front:/app
+    ports:
       - "3000:3000"
-   tty: true
+    tty: true
   backend:
     build:
       context: ./backend
