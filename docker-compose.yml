@@ -1,17 +1,20 @@
 services:
   frontend:
-   build: front
+   build: ./frontend
    container_name: frontend
    working_dir: /app
+   command: pnpm run dev --host
    volumes:
-     - ./front:/app
+     - ./frontend:/app
+     - /app/node_modules
    ports:
       - "3000:3000"
    tty: true
+
   backend:
     build:
       context: ./backend
-      dockerfile: build/dockerfile.dev  # 開発用Dockerfile
+      dockerfile: dockerfile.dev
     container_name: backend
     working_dir: /app
     volumes:
